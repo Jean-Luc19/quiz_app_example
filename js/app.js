@@ -1,5 +1,7 @@
+/* global $ */
 // State object
-var state = {
+
+const state = {
   questions: [
     {
       text: "Which number am I thinking of?",
@@ -47,18 +49,16 @@ var state = {
 };
 
 // State modification functions
-function setRoute(state, route) {
-  state.route = route;
-};
+let setRoute = (state, route) => state.route = route;
 
-function resetGame(state) {
+let resetGame = state => {
   state.score = 0;
   state.currentQuestionIndex = 0;
   setRoute(state, 'start');
 };
 
-function answerQuestion(state, answer) {
-  var currentQuestion = state.questions[state.currentQuestionIndex];
+let answerQuestion = (state, answer) => {
+  let currentQuestion = state.questions[state.currentQuestionIndex];
   state.lastAnswerCorrect = currentQuestion.correctChoiceIndex === answer;
   if (state.lastAnswerCorrect) {
     state.score++;
@@ -67,11 +67,9 @@ function answerQuestion(state, answer) {
   setRoute(state, 'answer-feedback');
 };
 
-function selectFeedback(state) {
-  state.feedbackRandom = Math.random();
-};
+let selectFeedback = state => state.feedbackRandom = Math.random();
 
-function advance(state) {
+let advance = state => {
   state.currentQuestionIndex++;
   if (state.currentQuestionIndex === state.questions.length) {
     setRoute(state, 'final-feedback');
@@ -82,18 +80,17 @@ function advance(state) {
 };
 
 // Render functions
-function renderApp(state, elements) {
+let renderApp = (state, elements) => {
   // default to hiding all routes, then show the current route
-  Object.keys(elements).forEach(function(route) {
-    elements[route].hide();
-  });
+  Object.keys(elements).forEach(route => elements[route].hide());
+  
   elements[state.route].show();
 
   if (state.route === 'start') {
-      renderStartPage(state, elements[state.route]);
+    renderStartPage(state, elements[state.route]);
   }
   else if (state.route === 'question') {
-      renderQuestionPage(state, elements[state.route]);
+    renderQuestionPage(state, elements[state.route]);
   }
   else if (state.route === 'answer-feedback') {
     renderAnswerFeedbackPage(state, elements[state.route]);
@@ -107,76 +104,77 @@ function renderApp(state, elements) {
 // the start page is preloaded in our HTML, but we've included
 // the function and used above in our routing system so that this
 // application view is accounted for in our system
-function renderStartPage(state, element) {
-};
 
-function renderQuestionPage(state, element) {
+function renderStartPage() {
+}
+
+function renderQuestionPage (state, element) {
   renderQuestionCount(state, element.find('.question-count'));
   renderQuestionText(state, element.find('.question-text'));
   renderChoices(state, element.find('.choices'));
-};
+}
+ 
 
-function renderAnswerFeedbackPage(state, element) {
+function renderAnswerFeedbackPage (state, element) {
   renderAnswerFeedbackHeader(state, element.find(".feedback-header"));
   renderAnswerFeedbackText(state, element.find(".feedback-text"));
   renderNextButtonText(state, element.find(".see-next"));
-};
+}
 
-function renderFinalFeedbackPage(state, element) {
-  renderFinalFeedbackText(state, element.find('.results-text'));
-};
+let renderFinalFeedbackPage = (state, element) => renderFinalFeedbackText(state, element.find('.results-text'));
 
-function renderQuestionCount(state, element) {
-  var text = (state.currentQuestionIndex + 1) + "/" + state.questions.length;
+
+let renderQuestionCount = (state, element)=>  {
+  let text = (state.currentQuestionIndex + 1) + "/" + state.questions.length;
   element.text(text);
 };
 
-function renderQuestionText(state, element) {
-  var currentQuestion = state.questions[state.currentQuestionIndex];
+let renderQuestionText = (state, element) => {
+  let currentQuestion = state.questions[state.currentQuestionIndex];
   element.text(currentQuestion.text);
 };
 
-function renderChoices(state, element) {
-  var currentQuestion = state.questions[state.currentQuestionIndex];
-  var choices = currentQuestion.choices.map(function(choice, index) {
+let renderChoices = (state, element) => {
+  let currentQuestion = state.questions[state.currentQuestionIndex];
+  let choices = currentQuestion.choices.map(function(choice, index) {
     return (
-      '<li>' +
-        '<input type="radio" name="user-answer" value="' + index + '" required>' +
-        '<label>' + choice + '</label>' +
-      '</li>'
+      `<li>
+        <input type="radio" name="user-answer" value="${index}" required>
+        <label>${choice}</label>
+      </li>`
     );
   });
   element.html(choices);
 };
 
-function renderAnswerFeedbackHeader(state, element) {
-  var html = state.lastAnswerCorrect ?
-      "<h6 class='user-was-correct'>correct</h6>" :
-      "<h1 class='user-was-incorrect'>Wrooonnnngggg!</>";
+let renderAnswerFeedbackHeader =(state, element)=>  {
+  let html = state.lastAnswerCorrect ?
+      `<h6 class='user-was-correct'>correct</h6>` :
+      `<h1 class='user-was-incorrect'>Wrooonnnngggg!</>`;
 
   element.html(html);
 };
 
-function renderAnswerFeedbackText(state, element) {
-  var choices = state.lastAnswerCorrect ? state.praises : state.admonishments;
-  var text = choices[Math.floor(state.feedbackRandom * choices.length)];
+let renderAnswerFeedbackText =(state, element) => {
+  let choices = state.lastAnswerCorrect ? state.praises : state.admonishments;
+  let text = choices[Math.floor(state.feedbackRandom * choices.length)];
   element.text(text);
 };
 
-function renderNextButtonText(state, element) {
-    var text = state.currentQuestionIndex < state.questions.length - 1 ?
-      "Next" : "How did I do?";
+let renderNextButtonText =(state, element) => {
+  let text = state.currentQuestionIndex < state.questions.length - 1 ?
+      `Next` : `How did I do?`;
   element.text(text);
 };
 
-function renderFinalFeedbackText(state, element) {
-  var text = "You got " + state.score + " out of " +
-    state.questions.length + " questions right.";
+let renderFinalFeedbackText =({score}, element) => {
+  let text = `You got ${score} out of
+    ${state.questions.length} questions right.`;
   element.text(text);
 };
 
 // Event handlers
-var PAGE_ELEMENTS = {
+let PAGE_ELEMENTS = {
   'start': $('.start-page'),
   'question': $('.question-page'),
   'answer-feedback': $('.answer-feedback-page'),
@@ -197,13 +195,13 @@ $(".restart-game").click(function(event){
 
 $("form[name='current-question']").submit(function(event) {
   event.preventDefault();
-  var answer = $("input[name='user-answer']:checked").val();
+  let answer = $("input[name='user-answer']:checked").val();
   answer = parseInt(answer, 10);
   answerQuestion(state, answer);
   renderApp(state, PAGE_ELEMENTS);
 });
 
-$(".see-next").click(function(event) {
+$(".see-next").click(function() {
   advance(state);
   renderApp(state, PAGE_ELEMENTS);
 });
