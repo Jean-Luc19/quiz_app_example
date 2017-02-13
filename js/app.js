@@ -49,16 +49,16 @@ const state = {
 };
 
 // State modification functions
-let setRoute = (state, route) => state.route = route;
+const setRoute = (state, route) => state.route = route;
 
-let resetGame = state => {
+const resetGame = state => {
   state.score = 0;
   state.currentQuestionIndex = 0;
   setRoute(state, 'start');
 };
 
-let answerQuestion = (state, answer) => {
-  let currentQuestion = state.questions[state.currentQuestionIndex];
+const answerQuestion = (state, answer) => {
+  const currentQuestion = state.questions[state.currentQuestionIndex];
   state.lastAnswerCorrect = currentQuestion.correctChoiceIndex === answer;
   if (state.lastAnswerCorrect) {
     state.score++;
@@ -67,20 +67,17 @@ let answerQuestion = (state, answer) => {
   setRoute(state, 'answer-feedback');
 };
 
-let selectFeedback = state => state.feedbackRandom = Math.random();
+const selectFeedback = state => state.feedbackRandom = Math.random();
 
-let advance = state => {
+const advance = state => {
   state.currentQuestionIndex++;
-  if (state.currentQuestionIndex === state.questions.length) {
-    setRoute(state, 'final-feedback');
-  }
-  else {
+  state.currentQuestionIndex === state.questions.length ?
+    setRoute(state, 'final-feedback') :
     setRoute(state, 'question');
-  }
 };
 
 // Render functions
-let renderApp = (state, elements) => {
+const renderApp = (state, elements) => {
   // default to hiding all routes, then show the current route
   Object.keys(elements).forEach(route => elements[route].hide());
   
@@ -121,11 +118,11 @@ function renderAnswerFeedbackPage (state, element) {
   renderNextButtonText(state, element.find(".see-next"));
 }
 
-let renderFinalFeedbackPage = (state, element) => renderFinalFeedbackText(state, element.find('.results-text'));
+const renderFinalFeedbackPage = (state, element) => renderFinalFeedbackText(state, element.find('.results-text'));
 
 
-let renderQuestionCount = (state, element)=>  {
-  let text = (state.currentQuestionIndex + 1) + "/" + state.questions.length;
+const renderQuestionCount = (state, element)=>  {
+  const text = (state.currentQuestionIndex + 1) + "/" + state.questions.length;
   element.text(text);
 };
 
@@ -167,10 +164,16 @@ let renderNextButtonText =(state, element) => {
   element.text(text);
 };
 
-let renderFinalFeedbackText =({score}, element) => {
+let renderFinalFeedbackText =({score, questions}, element) => {
   let text = `You got ${score} out of
-    ${state.questions.length} questions right.`;
+    ${questions.length} questions right.`;
   element.text(text);
+
+  return {
+    name: 'rich',
+    score: score,
+    questions: questions
+  };
 };
 
 // Event handlers
@@ -206,4 +209,24 @@ $(".see-next").click(function() {
   renderApp(state, PAGE_ELEMENTS);
 });
 
-$(function() { renderApp(state, PAGE_ELEMENTS); });
+$(() => renderApp(state, PAGE_ELEMENTS));
+
+
+const Person = {
+  name: 'Rich',
+  fruits: ['apples', 'pears', 'bananas'],
+  listMyFruits() {
+    return this.fruits.map((fruit) => {
+      return `My name is ${this.name} and I have a ${fruit}`;
+    });
+  }
+};
+
+console.log(Person.listMyFruits());
+[
+  'My name is undefined and I have a ....'
+]
+
+
+
+
